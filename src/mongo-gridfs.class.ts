@@ -3,7 +3,7 @@ import * as fs from 'fs';
 import {Db, GridFSBucket, GridFSBucketReadStream} from 'mongodb';
 import osTmpdir = require('os-tmpdir');
 import {Stream} from 'stream';
-import uniqueFilename = require('unique-filename');
+import uniqueFilename from 'unique-filename';
 
 
 
