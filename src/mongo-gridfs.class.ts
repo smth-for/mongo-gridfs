@@ -1,19 +1,21 @@
-import {ObjectID} from 'bson';
+import {ObjectId} from 'bson';
 import * as fs from 'fs';
 import {Db, GridFSBucket, GridFSBucketReadStream} from 'mongodb';
 import osTmpdir = require('os-tmpdir');
 import {Stream} from 'stream';
 import uniqueFilename = require('unique-filename');
 
+
+
 export interface IGridFSObject {
-    _id: ObjectID;
+    _id: ObjectId;
     length: number;
-    chunkSize: number;
-    uploadDate: Date;
-    md5: string;
+    chunkSize: number;    
     filename: string;
-    contentType: string;
-    metadata: object;
+    contentType?: string;
+    aliases?: string[];
+    metadata?: object;
+    uploadDate: Date;    
 }
 
 export interface IGridFSWriteOption {
@@ -108,7 +110,7 @@ export class MongoGridFS {
      * @return {Promise<IGridFSObject>}
      */
     public async findById(id: string): Promise<IGridFSObject> {
-        return await this.findOne({_id: new ObjectID(id)});
+        return await this.findOne({_id: new ObjectId(id)});
     }
 
     /**
@@ -190,11 +192,10 @@ export class MongoGridFS {
      */
     public delete(id: string): Promise<boolean> {
         return new Promise<boolean>((resolve, reject) => {
-            this.bucket.delete(new ObjectID(id), (async (err) => {
-                if (err) {
-                    reject(err);
-                }
-                resolve(true);
+            this.bucket.delete(new ObjectId(id))
+            .then(()=>resolve(true))
+            .catch((err=>{
+                reject(err);
             }));
         });
     }
