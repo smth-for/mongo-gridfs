@@ -4,16 +4,13 @@ This is a simple wrapper for the new [MongoDB GridFSBucket API](http://mongodb.g
 
 The old GridStore-API is now [deprecated](http://mongodb.github.io/node-mongodb-native/3.0/tutorials/gridfs/gridstore/).
 
+The library is a fork for a [peter-eom/mongo-gridfs](https://github.com/peter-eom/mongo-gridfs)
 
 ## How to install
 
 That is simple
 
-`npm install mongo-gridfs`
-
-OR
-
-`yarn add mongo-gridfs`
+`npm install --save @smth-for/mongo-gridfs`
 
 ## Usage
 
@@ -92,3 +89,10 @@ return gridFS.readFileStream(req.params.id).then((item) => {
 }).catch(() => res.status(500));
 ```
 
+## Join SMTH Community
+![Discord Banner 2](https://discordapp.com/api/guilds/748546400631128204/widget.png?style=banner2)
+
+[INVITATION LINK](https://discord.gg/H6NkzZy)
+
+## Code of Conduct
+[![Contributor Covenant](https://img.shields.io/badge/Contributor%20Covenant-v2.0%20adopted-ff69b4.svg)](CODE_OF_CONDUCT.md)

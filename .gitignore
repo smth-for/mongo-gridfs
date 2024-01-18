@@ -77,3 +77,4 @@ typings/
 .idea
 /.idea/vcs.xml
 dist
+cache

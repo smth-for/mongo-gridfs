@@ -1,8 +1,8 @@
-import {ObjectId} from 'bson';
+import { ObjectId } from 'bson';
 import * as fs from 'fs';
-import {Db, GridFSBucket, GridFSBucketReadStream} from 'mongodb';
+import { Db, GridFSBucket, GridFSBucketReadStream, GridFSFile } from 'mongodb';
 import osTmpdir = require('os-tmpdir');
-import {Stream} from 'stream';
+import { Stream } from 'stream';
 import uniqueFilename from 'unique-filename';
 
 
@@ -10,12 +10,12 @@ import uniqueFilename from 'unique-filename';
 export interface IGridFSObject {
     _id: ObjectId;
     length: number;
-    chunkSize: number;    
+    chunkSize: number;
     filename: string;
     contentType?: string;
     aliases?: string[];
     metadata?: object;
-    uploadDate: Date;    
+    uploadDate: Date;
 }
 
 export interface IGridFSWriteOption {
@@ -42,7 +42,7 @@ export class MongoGridFS {
     }
 
     public get bucket(): GridFSBucket {
-        return new GridFSBucket(this.connection, {bucketName: this.bucketName});
+        return new GridFSBucket(this.connection, { bucketName: this.bucketName });
     }
 
     public static getDownloadPath(object: IGridFSObject, options: IDownloadOptions = {
@@ -110,7 +110,7 @@ export class MongoGridFS {
      * @return {Promise<IGridFSObject>}
      */
     public async findById(id: string): Promise<IGridFSObject> {
-        return await this.findOne({_id: new ObjectId(id)});
+        return await this.findOne({ _id: new ObjectId(id) });
     }
 
     /**
@@ -140,20 +140,27 @@ export class MongoGridFS {
      * @param stream
      * @param options
      */
-    public writeFileStream(stream: Stream, options: IGridFSWriteOption): Promise<IGridFSObject> {
+    public writeFileStream(stream: Stream, options: IGridFSWriteOption): Promise<GridFSFile | null> {
+        const writeMongoStream = this.bucket.openUploadStream(options.filename, {
+            aliases: options.aliases,
+            chunkSizeBytes: options.chunkSizeBytes,
+            contentType: options.contentType,
+            metadata: options.metadata,
+        });
+
         return new Promise((resolve, reject) => stream
-            .pipe(this.bucket.openUploadStream(options.filename, {
-                aliases: options.aliases,
-                chunkSizeBytes: options.chunkSizeBytes,
-                contentType: options.contentType,
-                metadata: options.metadata,
-            }))
+            .pipe(writeMongoStream)
             .on('error', async (err) => {
                 reject(err);
             })
-            .on('finish', async (item: IGridFSObject) => {
-                resolve(item);
-            }),
+            .on('finish', async () => {
+                const gridFSFile: GridFSFile | null = writeMongoStream.gridFSFile;
+                if(!!gridFSFile) {
+                    resolve(gridFSFile);
+                } else {
+                    reject(new Error('Error while writing file'));
+                }
+            })
         );
     }
 
@@ -193,10 +200,10 @@ export class MongoGridFS {
     public delete(id: string): Promise<boolean> {
         return new Promise<boolean>((resolve, reject) => {
             this.bucket.delete(new ObjectId(id))
-            .then(()=>resolve(true))
-            .catch((err=>{
-                reject(err);
-            }));
+                .then(() => resolve(true))
+                .catch((err => {
+                    reject(err);
+                }));
         });
     }
 }
