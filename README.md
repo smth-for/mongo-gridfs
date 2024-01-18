@@ -10,7 +10,7 @@ The library is a fork for a [peter-eom/mongo-gridfs](https://github.com/peter-eo
 
 That is simple
 
-`npm install --save @smth-for/mongo-gridfs`
+`npm install @smth-for/mongo-gridfs`
 
 ## Usage
 
